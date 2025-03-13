@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TOROpassの発売機</title>
+    <script src="/script.js"></script>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div class="display" id="disp">
+        <div class="title">
+            <div class="text">
+                <h1>コードを発行しました。</h1>
+            </div>
+        </div>
+        <div class="main">
+            <div class="text" style="color: black;margin-left: 5%;background-color: whitesmoke;width: 90%;">
+                <h1 id="passtype"></h1>
+                <h1 id="company"></h1>
+                <h1>料金：700トロポ</h1>
+            </div>
+            <div class="text" style="color: black;margin: 5%;width: 90%;">
+                <h1>ご案内</h1>
+                <h2>下のコードをコピーし、Minecraftで実行してください。</h2>
+            </div>
+            <div class="text" style="color: black;margin-left: 5%;margin-top: -4%;background-color: whitesmoke;width: 90%;text-align: center;">
+                <h2 id="code"></h2>
+            </div>
+        </div>
+        <div class="under">
+        </div>
+    </div>
+</body>
+<script>
+    window.onload = buy();
+</script>
+</html>
