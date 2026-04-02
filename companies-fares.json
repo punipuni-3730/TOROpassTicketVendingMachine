@@ -1,0 +1,40 @@
+{
+  "additionalNotices": [
+    "購入後の払い戻しはできません。",
+    "区間外は通常運賃が適用されます。"
+  ],
+  "companyAdditionalNotices": {
+    "00": [],
+    "01": [],
+    "02": [],
+    "03": [],
+    "04": [],
+    "05": [],
+    "06": [],
+    "07": [],
+    "08": [],
+    "09": [],
+    "10": [],
+    "11": [],
+    "12": ["事業者コードが12の改札で乗車、下車した場合にのみフリーパスが適用されます。"],
+    "13": [],
+    "99": []
+  },
+  "companies": [
+    { "code": "00", "name": "しゃけでん", "fare": 1300, "selectable": true },
+    { "code": "01", "name": "なめ急電鉄", "fare": 600, "selectable": true },
+    { "code": "02", "name": "新中央高速鉄道(さっぽくエクスプレス)", "fare": 800, "selectable": true },
+    { "code": "03", "name": "彩都市交通局", "fare": 500, "selectable": true },
+    { "code": "04", "name": "厠市交通局", "fare": 400, "selectable": true },
+    { "code": "05", "name": "平原高速", "fare": 1500, "selectable": true },
+    { "code": "06", "name": "東北鉄道", "fare": 900, "selectable": true },
+    { "code": "07", "name": "小宮電鉄", "fare": 800, "selectable": true },
+    { "code": "08", "name": "磯崎鉄道", "fare": 500, "selectable": true },
+    { "code": "09", "name": "NKRわんがん鉄道", "fare": 700, "selectable": true },
+    { "code": "10", "name": "RR", "fare": 900, "selectable": true },
+    { "code": "11", "name": "氷魚LRT", "fare": 300, "selectable": true },
+    { "code": "12", "name": "東北エリア", "fare": 1200, "selectable": true },
+    { "code": "13", "name": "JPR", "fare": 400, "selectable": true },
+    { "code": "99", "name": "TORO", "fare": 5000, "selectable": false }
+  ]
+}

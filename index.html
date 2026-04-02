@@ -1,50 +1,1068 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>TOROpassの発売機</title>
-    <script src="/script.js"></script>
-    <link rel="stylesheet" href="/style.css">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TOROpassの券売機</title>
+
+<style>
+:root {
+    --bg-top: #99ffe1;
+    --bg-mid: #7fffd4;
+    --bg-bottom: #61d7b1;
+    --machine-shadow: rgba(13, 46, 37, 0.28);
+    --header-main: #101010;
+    --panel-main: #d6d6d6;
+    --panel-sub: #b1b1b1;
+    --accent: #ffe100;
+    --btn-main: #4f4f4f;
+    --btn-hover: #646464;
+    --btn-border: #1a1a1a;
+}
+
+* {
+    box-sizing: border-box;
+    font-family: "Yu Gothic UI", "Meiryo", sans-serif;
+}
+
+body {
+    margin: 0;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    --ui-scale: min(1, calc((100vw - 8px) / 1024px), calc((100dvh - 8px) / 768px));
+    padding: 0;
+    overflow: hidden;
+    background:
+        radial-gradient(circle at 15% 18%, #bcffec 0%, transparent 42%),
+        linear-gradient(180deg, var(--bg-top) 0%, var(--bg-mid) 54%, var(--bg-bottom) 100%);
+    color: #f5f5f5;
+}
+
+.screen-scaler {
+    width: calc(1024px * var(--ui-scale));
+    height: calc(768px * var(--ui-scale));
+    position: relative;
+}
+
+/* 券売機の表示領域 */
+.display {
+    width: 1024px;
+    height: 768px;
+    position: absolute;
+    left: 0;
+    top: 0;
+    display: flex;
+    flex-direction: column;
+    container-type: size;
+    transform: scale(var(--ui-scale));
+    transform-origin: top left;
+    border-radius: 12px;
+    overflow: hidden;
+    border: 2px solid rgba(0, 0, 0, 0.15);
+    box-shadow:
+        0 28px 48px var(--machine-shadow),
+        0 8px 14px rgba(0, 0, 0, 0.14);
+}
+
+/* ヘッダ */
+.header {
+    background: linear-gradient(180deg, #202020 0%, var(--header-main) 70%);
+    color: #fff;
+    padding: 16px 24px;
+    min-height: 13%;
+    display: flex;
+    align-items: center;
+}
+
+.header h1 {
+    margin: 0;
+    font-size: clamp(28px, 3.5cqw, 50px);
+    font-weight: 900;
+    letter-spacing: 0.02em;
+    text-wrap: balance;
+}
+
+.header h1 span {
+    color: var(--accent);
+    margin-right: 0.12em;
+}
+
+/* メイン */
+.main {
+    flex: 1;
+    background:
+        linear-gradient(160deg, rgba(255, 255, 255, 0.26) 0%, transparent 30%),
+        var(--panel-main);
+    padding: clamp(10px, 1.4cqw, 18px);
+    color: #fff;
+    overflow: auto;
+}
+
+.main.type-screen {
+    overflow: hidden;
+}
+
+/* ボタン */
+.btn {
+    background: var(--btn-main);
+    border: 2px solid #686868;
+    border-radius: 14px;
+    color: #fff;
+    padding: clamp(10px, 1.1cqw, 16px) clamp(10px, 1.2cqw, 16px);
+    margin-bottom: 10px;
+    font-size: clamp(20px, 2.2cqw, 34px);
+    font-weight: 700;
+    text-align: left;
+    cursor: pointer;
+    width: 100%;
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.18);
+    transition: transform 120ms ease, box-shadow 120ms ease, background 120ms ease;
+}
+
+.btn:hover {
+    background: var(--btn-hover);
+    transform: translateY(-1px);
+}
+
+.btn:active {
+    background: #3f3f3f;
+    transform: translateY(3px);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.25);
+}
+
+/* グリッド */
+.grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    align-items: stretch;
+}
+
+.grid .btn {
+    margin-bottom: 0;
+    min-height: clamp(56px, 7.6cqw, 110px);
+    display: flex;
+    align-items: center;
+}
+
+.blank-slot {
+    min-height: clamp(56px, 7.6cqw, 110px);
+    border: none;
+    background: transparent;
+    box-shadow: none;
+}
+
+.company-layout {
+    min-height: 100%;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: 12px;
+}
+
+.company-nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+}
+
+.company-page {
+    color: #111;
+}
+
+.type-layout {
+    height: 100%;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1.3fr) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1.08fr) minmax(0, 0.66fr) minmax(0, 0.06fr) minmax(0, 1.06fr);
+    gap: 8px;
+}
+
+.type-screen-wrap {
+    height: 100%;
+    min-height: 0;
+    display: grid;
+    grid-template-rows: 1fr auto;
+    gap: 8px;
+}
+
+.type-btn {
+    margin-bottom: 0;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    line-height: 1.1;
+    white-space: nowrap;
+    padding: 10px 10px;
+    font-size: clamp(23px, 2.4cqw, 36px);
+}
+
+.type-btn .lead {
+    display: block;
+    font-weight: 900;
+    letter-spacing: 0.01em;
+    width: fit-content;
+    max-width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    white-space: nowrap;
+}
+
+.type-btn .sub {
+    display: block;
+    margin-top: 4px;
+    font-weight: 700;
+    opacity: 0.95;
+    width: fit-content;
+    max-width: 50%;
+    margin-left: auto;
+    margin-right: auto;
+    white-space: nowrap;
+}
+
+.type-main {
+    grid-column: 1 / 2;
+    grid-row: 1 / 3;
+    padding: 12px 14px;
+    flex-direction: column;
+    gap: 8px;
+    background: #1f9f4b;
+    border-color: #0f5f2a;
+}
+
+.type-main .lead {
+    display: block;
+    width: clamp(110px, 12.8cqw, 180px);
+    height: auto;
+    margin: 0;
+    flex-shrink: 0;
+}
+
+.type-main .sub {
+    width: 100%;
+    max-width: none;
+    font-size: clamp(26px, 3.3cqw, 48px);
+    margin-top: 0;
+    margin-left: 0;
+    margin-right: 0;
+    text-align: center;
+    line-height: 1.08;
+}
+
+.type-main:hover {
+    background: #25b756;
+}
+
+.type-main:active {
+    background: #1a8d42;
+}
+
+.type-toro-day {
+    grid-column: 2 / 3;
+    grid-row: 1 / 2;
+}
+
+.type-toro-day .lead {
+    font-size: clamp(22px, 2.55cqw, 39px);
+    line-height: 1.1;
+}
+
+.type-toro-day .sub {
+    font-size: clamp(17px, 1.8cqw, 25px);
+}
+
+.type-tohoku .lead {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+    text-align: center;
+    font-size: clamp(22px, 2.45cqw, 37px);
+    line-height: 1.1;
+}
+
+.type-tohoku .sub {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+    text-align: center;
+    font-size: clamp(17px, 1.8cqw, 25px);
+}
+
+.type-tohoku {
+    grid-column: 2 / 3;
+    grid-row: 2 / 3;
+}
+
+.type-gap {
+    grid-column: 1 / 3;
+    grid-row: 3 / 4;
+}
+
+.type-bottom {
+    grid-column: 1 / 3;
+    grid-row: 4 / 5;
+    display: grid;
+    grid-template-columns: 1.8fr 1fr;
+    gap: 10px;
+}
+
+.type-bottom-col {
+    display: grid;
+    grid-template-rows: minmax(0, 2fr) minmax(0, 1fr);
+    gap: 8px;
+}
+
+.type-bottom-col > .btn {
+    margin-bottom: 0;
+    height: 100%;
+}
+
+.type-commuter {
+    font-size: clamp(17px, 1.25vw, 22px);
+    background: #b0136f;
+    border-color: #6a083f;
+}
+
+.type-commuter .lead {
+    font-size: clamp(22px, 2.55cqw, 39px);
+}
+
+.type-commuter .sub {
+    font-size: clamp(15px, 1.45cqw, 21px);
+}
+
+.type-commuter:hover {
+    background: #c21879;
+}
+
+.type-commuter:active {
+    background: #970f5f;
+}
+
+.type-toro-allline {
+    font-size: clamp(14px, 0.95vw, 17px);
+    background: #c92f2f;
+    border-color: #781515;
+}
+
+.type-toro-allline .lead {
+    font-size: clamp(20px, 2.1cqw, 32px);
+}
+
+.type-toro-allline .sub {
+    width: 100%;
+    max-width: none;
+    margin-left: 0;
+    margin-right: 0;
+    text-align: center;
+    font-size: clamp(15px, 1.45cqw, 21px);
+}
+
+.type-toro-allline:hover {
+    background: #d83a3a;
+}
+
+.type-toro-allline:active {
+    background: #ad2525;
+}
+
+.type-feature,
+.type-secondary,
+.type-bottom .btn {
+    border-radius: 16px;
+}
+
+.wallet-btn {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    margin: 0 auto;
+    text-decoration: none;
+    text-align: center;
+    font-size: clamp(18px, 2cqw, 30px);
+    font-weight: 800;
+    background: #315f9d;
+    border-color: #173867;
+}
+
+.type-sub-link {
+    min-height: 0;
+    height: 100%;
+    padding: clamp(6px, 0.8cqh, 9px) 8px;
+    margin: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    font-size: clamp(20px, 2.25cqw, 33px);
+    font-weight: 800;
+    line-height: 1.15;
+}
+
+.wallet-btn img {
+    width: clamp(22px, 1.45vw, 28px);
+    height: auto;
+    flex-shrink: 0;
+}
+
+.wallet-btn:hover {
+    background: #3d70b5;
+}
+
+.type-feature {
+    background: linear-gradient(180deg, #545454 0%, #424242 100%);
+}
+
+.type-secondary {
+    background: linear-gradient(180deg, #5b5b5b 0%, #4a4a4a 100%);
+}
+
+/* フッター */
+.footer {
+    background: linear-gradient(180deg, #bebebe 0%, var(--panel-sub) 100%);
+    color: #111;
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+    min-height: 9%;
+}
+
+.ctrl-btn {
+    background: #efefef;
+    border: 2px solid #454545;
+    border-radius: 9px;
+    min-height: 42px;
+    min-width: 92px;
+    padding: 8px 12px;
+    font-size: clamp(17px, 1.65cqw, 24px);
+    font-weight: 700;
+    cursor: pointer;
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.2);
+}
+
+.back-btn {
+    background: #f08a24;
+    border-color: #9a4f00;
+    color: #111;
+    min-width: 86px;
+}
+
+.back-btn:hover {
+    background: #ff9a33;
+}
+
+.exit-btn {
+    background: #de3b3b;
+    border-color: #8f1616;
+    color: #fff;
+    min-width: 86px;
+}
+
+.exit-btn:hover {
+    background: #f14b4b;
+}
+
+.ctrl-btn:disabled {
+    opacity: 0.4;
+    cursor: default;
+}
+
+.footer-left,
+.footer-right {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ページ表示 */
+.page {
+    font-size: clamp(17px, 1.8cqw, 27px);
+    font-weight: 700;
+    align-self: center;
+    background: rgba(255, 255, 255, 0.5);
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-radius: 999px;
+    padding: 4px 14px;
+    min-width: 88px;
+    text-align: center;
+}
+
+/* 説明 */
+.desc {
+    background: #f1f1f1;
+    color: #111;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-radius: 14px;
+    padding: clamp(16px, 1.8vw, 24px);
+    font-size: clamp(20px, 2.1cqw, 30px);
+    line-height: 1.75;
+}
+
+.confirm-layout {
+    display: grid;
+    gap: 14px;
+}
+
+.confirm-card {
+    background: #f4f4f4;
+    color: #111;
+    border: 2px solid rgba(0, 0, 0, 0.2);
+    border-radius: 14px;
+    padding: clamp(14px, 1.6vw, 22px);
+}
+
+.confirm-card.notice {
+    background: #f8f8f8;
+    border-color: rgba(0, 0, 0, 0.14);
+}
+
+.confirm-title {
+    margin: 0 0 10px;
+    font-size: clamp(24px, 2.8cqw, 40px);
+    font-weight: 900;
+    letter-spacing: 0.02em;
+}
+
+.confirm-row {
+    margin: 6px 0;
+    font-size: clamp(20px, 2.2cqw, 33px);
+    line-height: 1.5;
+    font-weight: 600;
+}
+
+.confirm-label {
+    display: inline-block;
+    min-width: 5.5em;
+    font-weight: 800;
+}
+
+.notice-list {
+    margin: 0;
+    padding-left: 1.2em;
+}
+
+.notice-list li {
+    font-size: clamp(19px, 2cqw, 30px);
+    font-weight: 700;
+    line-height: 1.6;
+}
+
+.buy-btn {
+    background: #1f9f4b;
+    border-color: #0f5f2a;
+    color: #fff;
+    text-align: center;
+    width: min(100%, 360px);
+    margin: 6px auto 0;
+    padding: 16px 18px;
+    font-size: clamp(24px, 2.7cqw, 40px);
+    box-shadow: 0 3px 0 rgba(0, 0, 0, 0.2);
+}
+
+.buy-btn:hover {
+    background: #25b756;
+}
+
+.buy-btn:active {
+    background: #1a8d42;
+}
+
+.done-layout {
+    display: grid;
+    gap: 14px;
+}
+
+.done-status {
+    background: #e9fff1;
+    color: #0d4f26;
+    border: 2px solid #8ed1a7;
+    border-radius: 14px;
+    padding: 14px 16px;
+}
+
+.done-status-title {
+    margin: 0;
+    font-size: clamp(24px, 2.9cqw, 43px);
+    font-weight: 900;
+}
+
+.done-status-sub {
+    margin: 6px 0 0;
+    font-size: clamp(18px, 2cqw, 30px);
+    font-weight: 700;
+}
+
+.done-summary {
+    background: #f5f5f5;
+    color: #111;
+    border: 2px solid rgba(0, 0, 0, 0.18);
+    border-radius: 14px;
+    padding: 12px 16px;
+}
+
+.done-summary p {
+    margin: 6px 0;
+    font-size: clamp(18px, 2cqw, 30px);
+    font-weight: 700;
+}
+
+.done-help {
+    color: #111;
+    font-size: clamp(18px, 2.1cqw, 31px);
+    font-weight: 700;
+    margin: 0;
+}
+
+.copy-btn {
+    width: min(100%, 220px);
+    margin: 2px auto 0;
+    padding: 12px 14px;
+    font-size: clamp(20px, 2.3cqw, 34px);
+    text-align: center;
+    background: #2a7ecb;
+    border-color: #15538c;
+}
+
+.copy-btn:hover {
+    background: #338edf;
+}
+
+.copy-btn:active {
+    background: #216fb4;
+}
+
+/* コード */
+.code {
+    background: #000;
+    color: #e8e8e8;
+    border-radius: 14px;
+    padding: 18px;
+    font-size: clamp(17px, 1.9cqw, 28px);
+    font-family: monospace;
+    margin-top: 20px;
+    overflow-wrap: anywhere;
+}
+
+</style>
 </head>
+
 <body>
-    <div class="display" id="disp">
-        <div class="title">
-            <div class="text">
-                <h1><span>きっぷの種類</span>をお選びください</h1>
-            </div>
+
+<div class="screen-scaler">
+<div class="display">
+    <div class="header"><h1 id="title"><span>きっぷの種類</span>をお選びください</h1></div>
+    <div class="main" id="app"></div>
+
+    <div class="footer">
+        <div class="footer-left">
+            <button class="ctrl-btn back-btn" id="footerPrimaryBtn" onclick="back()">戻る</button>
         </div>
-        <div class="main">
-        <div class="select">
-            <div class="sctbox_x">
-                <a href="/"><img src="/images/top_reserved.png"></a>
-            </div>
-            <div class="sctbox_x">
-                <a href="/transfar.html"><img src="/images/top_transfarsearch.png"></a>
-            </div>
-            <div class="sctbox_x">
-                <a href=""><img src="/images/top_nonreserved.png"></a>
-            </div>
-            <div class="sctbox_x">
-                <a href="/greatvalue/greatvalue.html"><img src="/images/top_greatvalue.png"></a>
-            </div>
-            <div class="sctbox_y">
-                <a href=""><img src="/images/top_internetreserve.png"></a>
-            </div>
-            <div class="sctbox_y">
-                <a href=""><img src="/images/top_otonaclub.png"></a>
-            </div>
-            <div class="sctbox_y">
-                <a href="/commuter/passtype.html"><img src="/images/top_commuterpass.png" style="margin-top: -4%;"></a>
-            </div>
-            <div class="sctbox_z">
-                <a href=""><img src="/images/top_payback.png" style="margin-top: -4%;"></a>
-                <a href=""><img src="/images/top_scanQR.png" style="margin-top: -4%; margin-left: 1%;"></a>
-            </div>
-        </div>
-        </div>
-        <div class="under">
-        </div>
+
+        <div></div>
+
+        <div class="footer-right"></div>
     </div>
+</div>
+</div>
+
+<script>
+
+// ===== データ =====
+let companies = [];
+let companyFare = {};
+let additionalNotices = [];
+let companyAdditionalNotices = {};
+let dataUnavailable = false;
+
+function applyCompanyData(data) {
+    companies = data
+        .filter(item => item.selectable !== false)
+        .map(item => [item.code, item.name]);
+
+    companyFare = {};
+    data.forEach(item => {
+        companyFare[item.code] = item.fare;
+    });
+}
+
+async function loadCompanyData() {
+    try {
+        const res = await fetch("./companies-fares.json", { cache: "no-store" });
+        if (!res.ok) {
+            throw new Error("Failed to load companies-fares.json");
+        }
+
+        const payload = await res.json();
+        if (!payload || !Array.isArray(payload.companies)) {
+            throw new Error("Invalid companies data format");
+        }
+
+        applyCompanyData(payload.companies);
+        if (companies.length === 0) {
+            throw new Error("No selectable companies");
+        }
+
+        if (Array.isArray(payload.additionalNotices)) {
+            additionalNotices = payload.additionalNotices.filter(item => typeof item === "string" && item.trim() !== "");
+        } else {
+            additionalNotices = [];
+        }
+
+        if (payload.companyAdditionalNotices && typeof payload.companyAdditionalNotices === "object") {
+            companyAdditionalNotices = {};
+            Object.keys(payload.companyAdditionalNotices).forEach(code => {
+                const list = payload.companyAdditionalNotices[code];
+                if (Array.isArray(list)) {
+                    companyAdditionalNotices[code] = list.filter(item => typeof item === "string" && item.trim() !== "");
+                }
+            });
+        } else {
+            companyAdditionalNotices = {};
+        }
+
+        dataUnavailable = false;
+    } catch (_) {
+        companies = [];
+        companyFare = {};
+        additionalNotices = [];
+        companyAdditionalNotices = {};
+        dataUnavailable = true;
+    }
+}
+
+// ===== 状態 =====
+let state = "type";
+let history = [];
+
+let selected = { type:null, company:null };
+let page = 0;
+
+// ===== 描画 =====
+function render() {
+    const app = document.getElementById("app");
+    const main = app.parentElement;
+    const footerPrimaryBtn = document.getElementById("footerPrimaryBtn");
+
+    app.innerHTML = "";
+    main.classList.toggle("type-screen", state === "type");
+
+    if (dataUnavailable) {
+        title("現在利用できません", "");
+        footerPrimaryBtn.classList.remove("exit-btn");
+        footerPrimaryBtn.classList.add("back-btn");
+        footerPrimaryBtn.textContent = "戻る";
+        footerPrimaryBtn.onclick = back;
+        footerPrimaryBtn.disabled = true;
+        app.innerHTML = `
+            <div class="desc">
+                データの取得に失敗しました。<br>
+                しばらくしてからもう一度お試しください。
+            </div>
+        `;
+        return;
+    }
+
+    footerPrimaryBtn.disabled = false;
+
+    if (state === "done") {
+        footerPrimaryBtn.classList.remove("back-btn");
+        footerPrimaryBtn.classList.add("exit-btn");
+        footerPrimaryBtn.textContent = "終了";
+        footerPrimaryBtn.onclick = endFlow;
+    } else {
+        footerPrimaryBtn.classList.remove("exit-btn");
+        footerPrimaryBtn.classList.add("back-btn");
+        footerPrimaryBtn.textContent = "戻る";
+        footerPrimaryBtn.onclick = back;
+    }
+
+    if (state === "type") {
+        title("きっぷの種類", "をお選びください");
+        page = 0;
+
+        app.innerHTML = `
+            <div class="type-screen-wrap">
+                <div class="type-layout">
+                    <button class="btn type-btn type-main" onclick="selectType(4)" type="button"><img class="lead" src="images/toropass.png" alt="1日乗車券"><span class="sub">1日乗車券を購入する</span></button>
+                    <button class="btn type-btn type-toro-day" onclick="selectPreset(4, '99')" type="button"><span class="lead">TORO 1dayパス</span><span class="sub">TOROの鉄道 全部乗り放題</span></button>
+                    <button class="btn type-btn type-tohoku" onclick="selectPreset(4, '12')" type="button"><span class="lead">TOHOKU FREE PASS</span><span class="sub">東北エリア乗り放題</span></button>
+                    <div class="type-gap" aria-hidden="true"></div>
+                    <div class="type-bottom">
+                        <div class="type-bottom-col">
+                            <button class="btn type-btn type-commuter" onclick="selectType(2)" type="button"><span class="lead">通勤定期券</span><span class="sub">1か月</span></button>
+                            <a class="btn wallet-btn type-sub-link" href="https://toro-server.github.io/toroapp_transfar/">乗換検索</a>
+                        </div>
+                        <div class="type-bottom-col">
+                            <button class="btn type-btn type-toro-allline" onclick="selectPreset(1, '99')" type="button"><span class="lead">TORO全線定期</span><span class="sub">1か月</span></button>
+                            <a class="btn wallet-btn type-sub-link" href="https://toro-server.github.io/TOROpass-Wallet/">残高・定期券情報確認</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `;
+    }
+
+    else if (state === "company") {
+        title("利用する会社", "をお選びください");
+
+        const perPage = 8;
+        const maxPage = Math.ceil(companies.length / perPage);
+
+        const start = page * perPage;
+        const list = companies.slice(start, start + perPage);
+        const slots = [...list];
+        while (slots.length < perPage) {
+            slots.push(null);
+        }
+
+        let html = `<div class="grid">`;
+        slots.forEach(c => {
+            if (c) {
+                html += `<div class="btn" onclick="selectCompany('${c[0]}')">${c[1]}</div>`;
+            } else {
+                html += `<div class="blank-slot" aria-hidden="true"></div>`;
+            }
+        });
+        html += `</div>`;
+
+        app.innerHTML = `
+            <div class="company-layout">
+                ${html}
+                <div class="company-nav">
+                    <button class="ctrl-btn" id="companyPrev" onclick="prevPage()">← 前へ</button>
+                    <div class="page company-page">${page + 1} / ${maxPage}</div>
+                    <button class="ctrl-btn" id="companyNext" onclick="nextPage()">次へ →</button>
+                </div>
+            </div>
+        `;
+
+        const prevBtn = document.getElementById("companyPrev");
+        const nextBtn = document.getElementById("companyNext");
+        prevBtn.disabled = page === 0;
+        nextBtn.disabled = page >= maxPage - 1;
+    }
+
+    else if (state === "confirm") {
+        title("ご購入内容", "をご確認ください");
+
+        const companyName = getCompanyName(selected.company);
+        const fare = getFare(selected.type, selected.company);
+        const expiry = buildExpiry(selected.type);
+        const expiryText = getExpiryLabel(selected.type, expiry);
+        const companyNotices = companyAdditionalNotices[selected.company] || [];
+        const combinedNotices = [...additionalNotices, ...companyNotices];
+        const noticesHtml = combinedNotices.map(item => `<li>${item}</li>`).join("");
+
+        app.innerHTML = `
+        <div class="confirm-layout">
+        <div class="confirm-card">
+            <h2 class="confirm-title">購入内容</h2>
+            <p class="confirm-row"><span class="confirm-label">券種</span>${typeName()}</p>
+            <p class="confirm-row"><span class="confirm-label">区間</span>${companyName}全線</p>
+            <p class="confirm-row"><span class="confirm-label">料金</span>${fare}トロポ</p>
+            <p class="confirm-row"><span class="confirm-label">有効期限</span>${expiryText}</p>
+        </div>
+
+        <div class="confirm-card notice">
+            <h2 class="confirm-title">ご注意</h2>
+            <ul class="notice-list">
+                ${noticesHtml}
+            </ul>
+        </div>
+
+        <button class="btn buy-btn" onclick="finish()" type="button">購入する</button>
+        </div>
+        `;
+    }
+
+    else if (state === "done") {
+        title("発行完了", "しました");
+
+        const companyName = getCompanyName(selected.company);
+        const fare = getFare(selected.type, selected.company);
+        const expiry = buildExpiry(selected.type);
+        const expiryText = getExpiryLabel(selected.type, expiry);
+        const code = `/writecard ${selected.type}-${selected.company}-${fare}-${expiry}`;
+
+        app.innerHTML = `
+        <div class="done-layout">
+            <div class="done-status">
+                <h2 class="done-status-title">発行が完了しました</h2>
+                <p class="done-status-sub">下のコマンドを貼り付けてカードを書き込んでください。</p>
+            </div>
+
+            <div class="done-summary">
+                <p>券種: ${typeName()}</p>
+                <p>区間: ${companyName}全線</p>
+                <p>料金: ${fare}トロポ</p>
+                <p>有効期限: ${expiryText}</p>
+            </div>
+
+            <p class="done-help">発行コマンド</p>
+            <div class="code">${code}</div>
+            <button class="btn copy-btn" onclick="copy('${code}')" type="button">コピー</button>
+        </div>
+        `;
+    }
+}
+
+// ===== 操作 =====
+function selectType(t) {
+    history.push({state, page});
+
+    selected.type = t;
+
+    if (t == 1) {
+        selected.company = "99";
+        state = "confirm";
+    } else {
+        state = "company";
+        page = 0;
+    }
+
+    render();
+}
+
+function selectPreset(t, c) {
+    history.push({state, page});
+    selected.type = t;
+    selected.company = c;
+    state = "confirm";
+    render();
+}
+
+function selectCompany(c) {
+    history.push({state, page});
+    selected.company = c;
+    state = "confirm";
+    render();
+}
+
+// ===== ページ移動（ここ分離が重要）=====
+function nextPage() {
+    if (state !== "company") return;
+
+    const max = Math.ceil(companies.length / 8);
+    if (page < max - 1) {
+        page++;
+        render();
+    }
+}
+
+function prevPage() {
+    if (state !== "company") return;
+
+    if (page > 0) {
+        page--;
+        render();
+    }
+}
+
+// ===== 戻る（ページ優先）=====
+function back() {
+    if (history.length === 0) return;
+
+    const prev = history.pop();
+    state = prev.state;
+    page = prev.page;
+
+    render();
+}
+
+function finish() {
+    history.push({state, page});
+    state = "done";
+    render();
+}
+
+function endFlow() {
+    state = "type";
+    history = [];
+    selected = { type:null, company:null };
+    page = 0;
+    render();
+}
+
+// ===== 補助 =====
+function title(accent, suffix) {
+    document.getElementById("title").innerHTML = `<span>${accent}</span>${suffix}`;
+}
+
+function typeName() {
+    return {
+        1: "全線定期券",
+        2: "通勤定期券",
+        3: "通学定期券",
+        4: "１日乗車券"
+    }[selected.type];
+}
+
+function getCompanyName(code) {
+    const found = companies.find(c => c[0] === code);
+    return found ? found[1] : "TORO";
+}
+
+function getFare(type, code) {
+    if (type === 1) return 10000;
+    return companyFare[code] || 700;
+}
+
+function buildExpiry(type) {
+    const base = new Date();
+    if (isMonthlyPass(type)) {
+        base.setMonth(base.getMonth() + 1);
+    }
+
+    const y = base.getFullYear();
+    const m = String(base.getMonth() + 1).padStart(2, "0");
+    const d = String(base.getDate()).padStart(2, "0");
+    return `${y}${m}${d}`;
+}
+
+function isMonthlyPass(type) {
+    return type === 1 || type === 2 || type === 3;
+}
+
+function formatExpiryDate(expiry) {
+    const y = Number(expiry.slice(0, 4));
+    const m = Number(expiry.slice(4, 6));
+    const d = Number(expiry.slice(6, 8));
+    return `${y}年${m}月${d}日`;
+}
+
+function getExpiryLabel(type, expiry) {
+    if (type === 4) {
+        return "当日限り";
+    }
+    return `${formatExpiryDate(expiry)}まで`;
+}
+
+function copy(text) {
+    navigator.clipboard.writeText(text);
+    alert("コピーしました");
+}
+
+// 初期
+async function init() {
+    await loadCompanyData();
+    render();
+}
+
+init();
+
+</script>
+
 </body>
 </html>
